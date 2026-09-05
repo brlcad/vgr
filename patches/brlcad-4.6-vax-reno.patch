@@ -1,0 +1,175 @@
+diff --git a/gen.sh b/gen.sh
+--- a/gen.sh
++++ b/gen.sh
+@@ -24,6 +24,6 @@
+ export SHELL
+ 
+ # Set to 0 for non-NFS environment (default), 1 for NFS configuration.
+-NFS=1
++NFS=0
+ 
+ # Label number for this CAD Release,
+@@ -301,6 +301,7 @@ benchmark)
+ 	(cd ${DIRPRE}libbu${DIRSUF} && cake -k)
+ 	(cd ${DIRPRE}libbn${DIRSUF} && cake -k)
+ 	(cd ${DIRPRE}librt${DIRSUF} && cake -k)
++	(cd ${DIRPRE}liboptical${DIRSUF} && cake -k)
+ 	(cd ${DIRPRE}conv${DIRSUF} && cake -k)
+ 	(cd ${DIRPRE}db${DIRSUF} && cake -k)
+ 	(cd ${DIRPRE}rt${DIRSUF} && cake -k)
+diff --git a/Cakefile.defs b/Cakefile.defs
+--- a/Cakefile.defs
++++ b/Cakefile.defs
+@@ -78,7 +78,6 @@
+ *								*
+ ****************************************************************/
+ 
+-/* #undef NFS */
+-#define NFS	1
++#undef NFS
+ 
+ /****************************************************************
+@@ -153,6 +152,8 @@
+ /*	DEC VAX-11 hardware running 4.3 BSD "Tahoe", or DEC ULTRIX */
+ #	undef	vax
+ #	define	MTYPE	vax
++#	define	CC	/usr/local/bin/gcc
++#	define	OPTIMIZER	-O
+ #	define	BSD	43
+ #	define	HAS_TCP	1
+ #	if	0	/* Set to 1 on Ultrix & 4.1 BSD systems */
+diff --git a/cake/Makefile b/cake/Makefile
+--- a/cake/Makefile
++++ b/cake/Makefile
+@@ -8,7 +8,7 @@
+ # For Apollo, may need to add -Tbsd4.3
+ #
+ # For gnu compiler use the following two lines:
+-# CC = gcc
++CC = /usr/local/bin/gcc
+ # COPTS = -DCAKEDEBUG=1 `machinetype.sh -d` -fwritable-strings
+ #
+ COPTS = -DCAKEDEBUG `machinetype.sh -d`
+diff --git a/cake/cake_s.l b/cake/cake_s.l
+--- a/cake/cake_s.l
++++ b/cake/cake_s.l
+@@ -44,8 +44,6 @@
+ /* default table sizes, and new fast-lex (flex) doesn't support these */
+ /* directives.  Un-comment the next two lines if you have trouble with */
+ /* table sizes. */
+-%a	2500
+-%o	5000
+ 
+ %start	edge middle
+ 
+@@ -180,6 +178,7 @@ yyinit()
+ 	BEGIN edge;
+ }
+ 
++#undef yywrap
+ #if (!defined(__bsdi__) && !defined(__GNUC__)) || defined(YY_FLEX_LEX_COMPAT)
+ extern int yylineno;
+ yywrap()
+diff --git a/cakeaux/Makefile b/cakeaux/Makefile
+--- a/cakeaux/Makefile
++++ b/cakeaux/Makefile
+@@ -8,7 +8,7 @@ SHELL=/bin/sh
+ # Use the following two lines for gnu compiler
+ # CC = gcc
+ # CFLAGS = -fwritable-strings
+-CC = cc
++CC = /usr/local/bin/gcc
+ CFLAGS = 
+ 
+ # Some systems use "flex" insteda of "lex"
+diff --git a/librt/polyno.h b/librt/polyno.h
+--- a/librt/polyno.h
++++ b/librt/polyno.h
+@@ -28,10 +28,12 @@
+ /* error return value for 'polyMul' */
+ #define		PM_NULL			((poly *)0)
+ 
++#ifndef poly
+ /* polynomial data type */
+ typedef  struct {
+ 	int		dgr;
+ 	double		cf[MAXP+1];
+ }  poly;
++#endif
+ 
+ 
+diff --git a/libbu/Cakefile b/libbu/Cakefile
+--- a/libbu/Cakefile
++++ b/libbu/Cakefile
+@@ -19,6 +19,6 @@
+ 	rb_rotate rb_search rb_walk		\
+ 	vfont brlcad_path \
+-	vls htond units bu_tcl file color
++	vls htond units bu_tcl file color convert strtod
+ 
+ #define VERSION_VARIABLE	bu_version
+ #define LIBRARY_TITLE		"The BRL-CAD Utility Library"
+diff --git a/libbu/strtod.c b/libbu/strtod.c
+--- a/libbu/strtod.c
++++ b/libbu/strtod.c
+@@ -13,7 +13,7 @@
+  * SCCS: @(#) strtod.c 1.9 96/12/13 15:02:46
+  */
+ 
+-#include "tcl.h"
++#define CONST const
+ #ifdef NO_STDLIB_H
+ #   include "../compat/stdlib.h"
+ #else
+diff --git a/librt/Cakefile b/librt/Cakefile
+--- a/librt/Cakefile
++++ b/librt/Cakefile
+@@ -31,6 +31,6 @@
+ 	nmg_rt_isect nmg_rt_segs nmg_manif \
+ 	nmg_visit nmg_info nmg_pr \
+-	vert nmg_extrude nmg_tri nmg_fuse nmg_pt_fu \
+-	rtassoc wdb tcl \
++	nmg_extrude nmg_tri nmg_fuse nmg_pt_fu \
++	wdb tcl \
+ 	pr LIBRT_TIMER storage global \
+ 	rt_dspline \
+diff --git a/conv/Cakefile b/conv/Cakefile
+--- a/conv/Cakefile
++++ b/conv/Cakefile
+@@ -5,11 +5,7 @@
+  */
+ 
+ #define SRCDIR	conv
+-#define PRODUCTS	asc2g g2asc conv-vg2g pix2asc asc2pix euclid-g \
+-			g-euclid euclid_format euclid_unformat tankill-g g-tankill \
+-			viewpoint-g dxf-g g-nmg g-euclid1 fast4-g proe-g \
+-			asc-nmg nmg-rib g-vrml g-acad cy-g nastran-g g-wave \
+-			nmg-polysolid g-shell.rect stl-g
++#define PRODUCTS	asc2g
+ #define	SRCSUFF	.c
+ #define MANSECTION	1
+ 
+@@ -51,8 +47,8 @@ stl-g:	proe-g
+ fast4-g: fast4-g.o LIBRT_DEP LIBBN_DEP LIBBU_DEP LIBTCL_DEP LIBWDB_DEP
+ 	CC LDFLAGS fast4-g.o LIBWDB LIBRT LIBBN LIBBU LIBBU_LIBES LIBTCL LIBES -o fast4-g
+ 
+-asc2g:	asc2g.o LIBRT_DEP LIBBN_DEP LIBBU_DEP LIBTCL_DEP LIBWDB_DEP
+-	CC LDFLAGS asc2g.o LIBWDB LIBRT LIBBN LIBBU LIBBU_LIBES LIBTCL LIBES -o asc2g
++asc2g:	asc2g.o LIBRT_DEP LIBBN_DEP LIBBU_DEP LIBWDB_DEP
++	CC LDFLAGS asc2g.o LIBWDB LIBRT LIBBN LIBBU LIBBU_LIBES LIBES -o asc2g
+ 
+ g2asc:	g2asc.o LIBRT_DEP LIBBN_DEP LIBBU_DEP LIBTCL_DEP
+ 	CC LDFLAGS g2asc.o LIBWDB LIBRT LIBBN LIBBU LIBBU_LIBES LIBTCL LIBES -o g2asc
+diff --git a/rt/Cakefile b/rt/Cakefile
+--- a/rt/Cakefile
++++ b/rt/Cakefile
+@@ -5,8 +5,6 @@
+  */
+ #define CONFIGDEFS	RT_CONFIG
+ 
+ #define SRCDIR	rt
+-#define PRODUCTS	rt rtrad rtpp rtray rtshot rtwalk rtcheck \
+-			rtg3 rtcell rtxray rthide rtfrac rtrange \
+-			rtregis rtscale rtsil rtweight
++#define PRODUCTS	rt
+ #define	SRCSUFF	.c

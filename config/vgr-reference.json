@@ -1,0 +1,57 @@
+{
+  "reference_machine": {
+    "hostname": "vgr.brl.mil",
+    "hardware": "DEC VAX-11/780 with FPA",
+    "memory_bytes": 67108864,
+    "operating_system": "4.3 BSD",
+    "brl_cad_release": "3.26",
+    "compiled": "1991-08-26"
+  },
+  "metric": {
+    "name": "VGR",
+    "definition": "Arithmetic mean of observed_RTFM / reference_RTFM for the five legacy scenes",
+    "legacy_scenes": [
+      "moss",
+      "world",
+      "star",
+      "bldg391",
+      "m35"
+    ]
+  },
+  "scenes": {
+    "moss": {
+      "pixels": 262144,
+      "rays": 343042,
+      "seconds": 2503.79,
+      "rtfm": 137.01
+    },
+    "world": {
+      "pixels": 262144,
+      "rays": 438449,
+      "seconds": 6538.36,
+      "rtfm": 67.06
+    },
+    "star": {
+      "pixels": 262144,
+      "rays": 312052,
+      "seconds": 5565.04,
+      "rtfm": 56.07
+    },
+    "bldg391": {
+      "pixels": 262144,
+      "rays": 341875,
+      "seconds": 6407.16,
+      "rtfm": 53.36
+    },
+    "m35": {
+      "pixels": 262144,
+      "rays": 654979,
+      "seconds": 9264.91,
+      "rtfm": 70.69
+    }
+  },
+  "sphflake": {
+    "reference_rtfm": null,
+    "reason": "The archived sphflake log is a two-processor 1998 run on window.brl.mil, not the VAX reference."
+  }
+}

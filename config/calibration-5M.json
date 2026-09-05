@@ -1,0 +1,26 @@
+{
+  "status": "full_resolution_calibration",
+  "simh_throttle_cycles_per_second": 5000000,
+  "renderer": {
+    "compiler": "GCC 1.42",
+    "optimization": "-O",
+    "width": 512,
+    "height": 512,
+    "pixels_per_scene": 262144
+  },
+  "legacy_vgr_arithmetic_mean": 10.833617595549063,
+  "legacy_vgr_range": [9.724325337331335, 12.311291146631634],
+  "derived_verification_throttle_cycles_per_second": 461526,
+  "simh_verification_throttle": "462K",
+  "expected_verification_vgr_after_rounding": 1.0010262658287334,
+  "scenes": {
+    "moss": {"rays": 357882, "seconds": 212.17, "rtfm": 1686.77, "vgr": 12.311291146631634},
+    "world": {"rays": 483651, "seconds": 662.86, "rtfm": 729.64, "vgr": 10.880405606919176},
+    "star": {"rays": 312052, "seconds": 558.76, "rtfm": 558.47, "vgr": 9.960228286070983},
+    "bldg391": {"rays": 341873, "seconds": 658.86, "rtfm": 518.89, "vgr": 9.724325337331335},
+    "m35": {"rays": 654979, "seconds": 820.55, "rtfm": 798.22, "vgr": 11.291837600792192},
+    "sphflake": {"rays": 1307010, "seconds": 1874.84, "rtfm": 697.13}
+  },
+  "projected_sphflake_vax_rtfm": 64.34877305309469,
+  "note": "The sphflake value is a projection from the accelerated pass, not the final baseline. Accept the direct sphflake timing from the 461526-cycle/s verification run."
+}

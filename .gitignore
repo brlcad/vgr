@@ -1,0 +1,7 @@
+work/
+results/
+*.tap
+*.dsk
+__pycache__/
+*.pyc
+
