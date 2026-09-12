@@ -1,4 +1,4 @@
-.PHONY: all simh media test shell benchmark benchmark-calibrated metrics metrics-calibrated
+.PHONY: all simh media test shell calibrate benchmark benchmark-calibrated metrics metrics-calibrated
 
 all: simh media
 
@@ -13,6 +13,9 @@ test:
 
 shell:
 	./scripts/run-vax.sh shell
+
+calibrate:
+	./scripts/run-vax.sh calibrate
 
 benchmark:
 	./scripts/run-vax.sh benchmark

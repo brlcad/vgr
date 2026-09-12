@@ -6,7 +6,7 @@ set mode $env(VGR_MODE)
 set results $env(VGR_RESULTS)
 set send_slow {1 .01}
 
-if {$mode eq "benchmark" || $mode eq "collect"} {
+if {$mode eq "calibrate" || $mode eq "benchmark" || $mode eq "collect"} {
     set stamp [clock format [clock seconds] -format "%Y%m%d-%H%M%S"]
     log_file -noappend "$results/vgr-$stamp.console.log"
 }
@@ -43,12 +43,23 @@ expect -re {# $}
 send -s -- "cd /usr/src/brlcad-4.6/bench\r"
 expect -re {# $}
 
-if {$mode eq "benchmark"} {
+if {$mode eq "calibrate"} {
+    # Keep the historical run.sh commands unchanged, but stop before the
+    # non-reference sphflake scene while iterating on the throttle.
+    send -s -- "sed '/^echo +++++ sphflake/q' ./run.sh > /tmp/vgr-legacy.sh\r"
+    expect -re {# $}
+    send -s -- "sh /tmp/vgr-legacy.sh\r"
+    expect -re {# $}
+    set scenes {moss world star bldg391 m35}
+} elseif {$mode eq "benchmark"} {
     send -s -- "sh ./run.sh\r"
     expect -re {# $}
+    set scenes {moss world star bldg391 m35 sphflake}
+} else {
+    set scenes {moss world star bldg391 m35 sphflake}
 }
 
-foreach scene {moss world star bldg391 m35 sphflake} {
+foreach scene $scenes {
     send -s -- "echo VGR-BEGIN $scene; grep pixels $scene.log; grep RTFM $scene.log; echo VGR-END $scene\r"
     expect -re {# $}
 }

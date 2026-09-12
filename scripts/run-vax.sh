@@ -4,8 +4,8 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 MODE=${1:-shell}
 case "$MODE" in
-    shell|benchmark|collect) ;;
-    *) echo "usage: $0 [shell|benchmark|collect]" >&2; exit 2 ;;
+    shell|calibrate|benchmark|collect) ;;
+    *) echo "usage: $0 [shell|calibrate|benchmark|collect]" >&2; exit 2 ;;
 esac
 
 if test -n "${VGR_RT_ARGS:-}"; then
@@ -38,7 +38,10 @@ trap 'rm -f "$INI"' EXIT HUP INT TERM
 
 {
     echo 'set cpu 64m'
-    test -z "$THROTTLE" || echo "set throttle $THROTTLE"
+    if test -n "$THROTTLE"; then
+        echo "set throttle $THROTTLE"
+        echo 'show throttle -d'
+    fi
     echo 'set rq0 ra81'
     echo "attach rq0 $VGR_DISK"
     echo 'set rq1 disable'
